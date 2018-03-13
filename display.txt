@@ -1,0 +1,133 @@
+package com.developer.smadanala.easyemi;
+
+
+import android.app.TabActivity;
+
+import android.content.Intent;
+
+import android.os.Bundle;
+
+import android.support.v4.app.NavUtils;
+
+import android.view.View;
+import android.widget.TabHost;
+
+import android.widget.TextView;
+
+
+import java.text.DecimalFormat;
+
+import java.text.NumberFormat;
+
+import java.util.Locale;
+
+
+
+public class DisplayStatistics extends TabActivity 
+{
+
+  
+
+  @Override
+ 
+   protected void onCreate(Bundle savedInstanceState)
+
+ {
+      
+  super.onCreate(savedInstanceState);
+  
+      setContentView(R.layout.activity_display_statistics);
+  
+      setTitle(R.string.title_activity_display_statistics);
+     
+   Intent intent = getIntent();
+      
+  long totalAmt = intent.getLongExtra(MainActivity.TOTAL_AMOUNT, 0l);
+   
+     double interest = intent.getDoubleExtra(MainActivity.INTEREST, 0.0);
+   
+     double emi = intent.getDoubleExtra(MainActivity.EMI, 0.0);
+   
+     NumberFormat formatter = DecimalFormat.getInstance(Locale.getDefault());
+
+ 
+       TextView emiView = (TextView) findViewById(R.id.emi_in_display);
+   
+     emiView.setText("EMI : " + formatter.format(Double.parseDouble(String.format("%.2f", emi))));
+
+       
+ // Get TabHost Reference
+        TabHost tabHost = getTabHost();
+
+    
+    // Years tab
+    
+    Intent intentYears = new Intent(this, YearsStatistics.class);
+  
+      intentYears.putExtra(MainActivity.TOTAL_AMOUNT, totalAmt);
+     
+   intentYears.putExtra(MainActivity.INTEREST, interest);
+      
+  intentYears.putExtra(MainActivity.EMI, emi);
+     
+   TabHost.TabSpec tabSpecYears = tabHost
+                .newTabSpec("Android")
+                .setIndicator("Years")
+                .setContent(intentYears);
+
+      
+  // Months tab
+       
+ Intent intentMonths = new Intent(this, MonthsStatistics.class);
+  
+      intentMonths.putExtra(MainActivity.TOTAL_AMOUNT, totalAmt);
+   
+     intentMonths.putExtra(MainActivity.INTEREST, interest);
+     
+   intentMonths.putExtra(MainActivity.EMI, emi);
+      
+  TabHost.TabSpec tabSpecMonths = tabHost
+                .newTabSpec("Android")
+                .setIndicator("Months")
+                .setContent(intentMonths);
+
+       
+ // add all tabs
+        tabHost.addTab(tabSpecYears);
+     
+   tabHost.addTab(tabSpecMonths);
+
+       
+ //set Years tab as default (zero based)
+        tabHost.setCurrentTab(0);
+
+
+    }
+
+  
+  public void goToMainActivity(View view)
+ 
+{
+       
+ finish();
+ 
+   }
+
+   
+ public void goToShareActivity(View view)
+ {
+     
+   Intent sendIntent = new Intent();
+      
+  sendIntent.setAction(Intent.ACTION_SEND);
+  
+      sendIntent.putExtra(Intent.EXTRA_TEXT, Constants.SHARE_INFORMATION);
+     
+   sendIntent.setType("text/plain");
+     
+   startActivity(sendIntent);
+  
+  }
+
+}
+

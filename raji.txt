@@ -1,0 +1,359 @@
+package com.developer.smadanala.easyemi;
+
+
+import android.content.Intent;
+
+import android.net.Uri;
+
+import android.support.v7.app.ActionBar;
+
+import android.support.v7.app.ActionBarActivity;
+
+import android.os.Bundle;
+
+import android.view.Menu;
+
+import android.view.MenuItem;
+
+import android.view.View;
+
+import android.view.inputmethod.InputMethodManager;
+
+import android.widget.ArrayAdapter;
+
+import android.widget.EditText;
+
+import android.widget.Spinner;
+
+import android.widget.Toast;
+
+
+import java.net.URI;
+
+import java.text.DecimalFormat;
+
+import java.text.NumberFormat;
+
+import java.util.Locale;
+
+
+
+
+public class MainActivity extends ActionBarActivity 
+{
+
+    private static final String DURATION_MONTHS = "Months";
+ 
+   public static final String TOTAL_AMOUNT = "totalAmount";
+    
+	public static final String INTEREST = "interest";
+ 
+   public static final String EMI = "emi";
+
+  
+  @Override
+  
+  protected void onCreate(Bundle savedInstanceState)
+ {
+    
+    super.onCreate(savedInstanceState);
+   
+     setContentView(R.layout.activity_main);
+   
+     ActionBar actionBar = getSupportActionBar();
+   
+     actionBar.setHomeButtonEnabled(true);
+  
+      actionBar.setDisplayShowHomeEnabled(true);
+     
+   actionBar.setDisplayUseLogoEnabled(true);
+  
+      actionBar.setDisplayShowTitleEnabled(true);
+  
+      actionBar.setIcon(R.drawable.easy_emi_launcher);
+
+  
+
+      Spinner spinner = (Spinner) findViewById(R.id.duration_spinner_id);
+  
+      // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.duration_array, android.R.layout.simple_spinner_item);
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        // Apply the adapter to the spinner
+        spinner.setAdapter(adapter);
+
+        View resultLayout = findViewById(R.id.result_layout);
+        resultLayout.setVisibility(View.INVISIBLE);
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+      
+  // as you specify a parent activity in AndroidManifest.xml.
+     
+
+   int id = item.getItemId();
+
+    
+    switch (id)
+ {
+           
+
+ case R.id.action_contact:
+          
+      Intent contactIntent = new Intent(this, ContactInformation.class);
+    
+            startActivity(contactIntent);
+       
+         break;
+       
+     case R.id.action_share:
+         
+       Intent sendIntent = new Intent();
+    
+            sendIntent.setAction(Intent.ACTION_SEND);
+   
+             sendIntent.putExtra(Intent.EXTRA_TEXT, Constants.SHARE_INFORMATION);
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+                break;
+            case R.id.action_rate:
+                Intent rateIntent = new Intent();
+                rateIntent.setData(Uri.parse(Constants.MOBILE_APP_LINK));
+                startActivity(rateIntent);
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /** Called when the user clicks the Submit button */
+    public void calculateEmi(View view) {
+        long pricinpleAmt;
+        double interest;
+        int duration;
+        String selectedDuration;
+        boolean years = true;
+        double emi;
+        double totalPayment;
+        double totalInterest;
+        double totalInterestPercentage;
+        double totalPrincipalPercentage;
+        NumberFormat formatter = DecimalFormat.getInstance(Locale.getDefault());
+    
+    EditText principalView = (EditText) findViewById(R.id.principal_view_id);
+    
+    EditText interestView = (EditText) findViewById(R.id.interest_view_id);
+    
+    EditText durationView = (EditText) findViewById(R.id.duration_view_id);
+    
+    Spinner durationSpinner = (Spinner) findViewById(R.id.duration_spinner_id);
+   
+     try 
+{
+          
+  if (principalView.getText().toString() == null
+   || principalView.getText().toString().isEmpty()
+              
+      || interestView.getText().toString() == null
+                
+    || interestView.getText().toString().isEmpty()
+               
+
+     || durationView.getText().toString() == null
+                
+    || durationView.getText().toString().isEmpty())
+ {
+           
+     Toast.makeText(getApplicationContext(),
+"Please enter complete details.", Toast.LENGTH_SHORT).show();
+            
+}
+          
+  pricinpleAmt = Long.parseLong(principalView.getText().toString());
+            
+interest = Double.parseDouble(interestView.getText().toString());
+            
+duration = Integer.parseInt(durationView.getText().toString());
+            
+selectedDuration = durationSpinner.getSelectedItem().toString();
+
+           
+ if (DURATION_MONTHS.equalsIgnoreCase(selectedDuration)) {
+              
+  years = false;
+           
+ }
+
+          
+  interest = interest/(12 * 100);
+       
+     if (years) 
+{
+               
+ duration = duration * 12;
+  
+        
+  }
+
+            emi = (pricinpleAmt * interest * (Math.pow((1 + interest), duration))) / (Math.pow((1 + interest), duration) - 1);
+            
+EditText emiView = (EditText) findViewById(R.id.emi);
+            emiView.setText(formatter.format(Double.parseDouble(String.format("%.2f", emi))));
+
+            totalPayment = duration * emi;
+    
+      
+  EditText totalPaymentView = (EditText) findViewById(R.id.total_payment);
+  
+          totalPaymentView.setText(formatter.format(Double.parseDouble(String.format("%.2f", totalPayment))));
+
+            totalInterest = totalPayment - pricinpleAmt;
+            totalInterestPercentage = (totalInterest * 100) / totalPayment;
+            EditText totalInterestView = (EditText) findViewById(R.id.total_interest);
+            totalInterestView.setText(formatter.format(Double.parseDouble(String.format("%.2f", totalInterest)))
+                    + " (" + String.format("%.2f", totalInterestPercentage)
+                    + "%)");
+
+            totalPrincipalPercentage = (pricinpleAmt * 100) / totalPayment;
+            EditText totalPrincipalView = (EditText) findViewById(R.id.total_principal);
+            totalPrincipalView.setText(formatter.format(pricinpleAmt)
+                    + " (" + String.format("%.2f", totalPrincipalPercentage)
+                    + "%)");
+
+            View resultLayout = findViewById(R.id.result_layout);
+            resultLayout.setVisibility(View.VISIBLE);
+
+            InputMethodManager inputManager = (InputMethodManager) this.getSystemService(INPUT_METHOD_SERVICE);
+          
+  inputManager.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+
+       
+
+ } 
+catch (Exception e)
+ {
+
+      
+  }
+   
+ }
+
+   
+
+ /** Called when the user clicks the Submit button */
+ 
+   public void resetValues(View view)
+ {
+     
+   EditText principalView = (EditText) findViewById(R.id.principal_view_id);
+     
+   principalView.getText().clear();
+
+   
+     EditText interestView = (EditText) findViewById(R.id.interest_view_id);
+  
+      interestView.getText().clear();
+
+        EditText durationView = (EditText) findViewById(R.id.duration_view_id);
+        durationView.getText().clear();
+
+        Spinner durationSpinner = (Spinner) findViewById(R.id.duration_spinner_id);
+        durationSpinner.setSelection(0);
+
+        EditText emiView = (EditText) findViewById(R.id.emi);
+        emiView.getText().clear();
+
+        EditText totalPaymentView = (EditText) findViewById(R.id.total_payment);
+        totalPaymentView.getText().clear();
+
+        EditText totalInterestView = (EditText) findViewById(R.id.total_interest);
+        totalInterestView.getText().clear();
+
+        View resultLayout = findViewById(R.id.result_layout);
+        resultLayout.setVisibility(View.INVISIBLE);
+    }
+
+    /** Called when the user clicks the Submit button */
+    public void displayStatistics(View view) {
+        long pricinpleAmt;
+        double interest;
+        int duration;
+        String selectedDuration;
+        boolean years = true;
+        double emi;
+        NumberFormat formatter = DecimalFormat.getInstance(Locale.getDefault());
+     
+   EditText principalView = (EditText) findViewById(R.id.principal_view_id);
+    
+    EditText interestView = (EditText) findViewById(R.id.interest_view_id);
+     
+   EditText durationView = (EditText) findViewById(R.id.duration_view_id);
+      
+  Spinner durationSpinner = (Spinner) findViewById(R.id.duration_spinner_id);
+    
+    try {
+            if (principalView.getText().toString() == null
+              
+      || principalView.getText().toString().isEmpty()
+                   
+ || interestView.getText().toString() == null
+                 
+   || interestView.getText().toString().isEmpty()
+                
+    || durationView.getText().toString() == null
+                 
+   || durationView.getText().toString().isEmpty())
+ {
+               
+ Toast.makeText(getApplicationContext(),
+"Please enter complete details.", Toast.LENGTH_SHORT).show();
+            }
+            pricinpleAmt = Long.parseLong(principalView.getText().toString());
+            interest = Double.parseDouble(interestView.getText().toString());
+            duration = Integer.parseInt(durationView.getText().toString());
+            selectedDuration = durationSpinner.getSelectedItem().toString();
+
+            if (DURATION_MONTHS.equalsIgnoreCase(selectedDuration)) {
+                years = false;
+            }
+
+            interest = interest/(12 * 100);
+            if (years) {
+                duration = duration * 12;
+            }
+
+            emi = (pricinpleAmt * interest * (Math.pow((1 + interest), duration))) / (Math.pow((1 + interest), duration) - 1);
+
+            Intent intent = new Intent(this, DisplayStatistics.class);
+            intent.putExtra(TOTAL_AMOUNT, pricinpleAmt);
+            intent.putExtra(INTEREST, interest);
+            intent.putExtra(EMI, emi);
+          
+  startActivity(intent);
+
+       
+ } 
+catch (Exception e)
+ {
+
+       
+ }
+    
+}
+
+}

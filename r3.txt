@@ -1,0 +1,18 @@
+package com.developer.smadanala.easyemi;
+
+
+/**
+ * Created by smadanala on 7/10/15.
+ 
+*/
+public class Constants
+ {
+   
+ public static final String MOBILE_APP_LINK = "market://details?id=com.developer.smadanala.easyemi";
+ 
+   public static final String APP_LINK = "http://play.google.com/store/apps/details?id=com.developer.smadanala.easyemi";
+
+    public static final String SHARE_INFORMATION = "Easy EMI. As easy way to calculate emis. To download, please follow http://play.google.com/store/apps/details?id=com.developer.smadanala.easyemi. Please do rate the app.";
+
+}
+
